@@ -1,0 +1,29 @@
+riscv32_sim1~7.s
+只验证单条指令的功能
+
+riscv32_sim1.s:
+# 待验证：LUI, AUIPC, ADDI
+
+riscv32_sim2.s:
+# 已经能正确执行：LUI, ADDI
+# 待验证：XORI, ANDI, SLLI
+
+riscv32_sim3.s:
+# 已经能正确执行：LUI, ADDI
+# 待验证：ADD, XOR, AND, SLL
+
+riscv32_sim4.s:
+# 已经能正确执行：LUI, ADDI
+# 待验证：SLT, SLTU, SLTI, SLTIU
+
+riscv32_sim5.s:
+# 已经能正确执行：ADDI
+# 待验证：JAL, JALR
+
+riscv32_sim6.s:
+# 已经能正确执行：ADDI, LUI, JALR
+# 待验证：BEQ, BLT, BLTU
+
+riscv32_sim7.s
+# 已经能正确执行：LUI, ADDI
+# 待验证：LW, SW
