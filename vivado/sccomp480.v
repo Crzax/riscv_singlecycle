@@ -18,7 +18,7 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-//¶¨Òå´ÓMem2RegµÄMuxĞ´ÈëµÄĞÅºÅ
+//å®šä¹‰ä»Mem2Regçš„Muxå†™å…¥çš„ä¿¡å·
 `define WDSel_FromALU 2'b00
 `define WDSel_FromMEM 2'b01
 `define WDSel_FromPC 2'b10
@@ -29,7 +29,7 @@
 `define NPC_JUMP    3'b010
 `define NPC_JALR 3'b100
 
-//ALUOpµÄ¶¨Òå
+//ALUOpçš„å®šä¹‰
 `define ALUOp_nop 5'b00000
 `define ALUOp_lui 5'b00001
 `define ALUOp_auipc 5'b00010
@@ -58,24 +58,24 @@ module sccomp480(clk, rstn, sw_i, disp_seg_o, disp_an_o);
     reg [31:0] clkdiv;        
     wire Clk_CPU;             
 
-//==================µÚÒ»²¿·Ö£¬·ÖÆµ====================
-    // Ê±ÖÓ·ÖÆµÂß¼­
+//==================ç¬¬ä¸€éƒ¨åˆ†ï¼Œåˆ†é¢‘====================
+    // æ—¶é’Ÿåˆ†é¢‘é€»è¾‘
     always @(posedge clk or negedge rstn) begin
         if (!rstn) clkdiv <= 0;           
         else clkdiv <= clkdiv + 1'b1;    
     end
 
-  //25»òÕß28·ÖÆµ
+  //25æˆ–è€…28åˆ†é¢‘
     assign Clk_CPU=(sw_i[15]) ? clkdiv[27] : clkdiv[24]; 
-//===================·ÖÆµ==================================
+//===================åˆ†é¢‘==================================
 
-//==============µÚ¶ş²¿·Ö£¬Í¼ĞÎÄ£Ê½Ì°³ÔÉß======================
-reg [63:0] display_data;   //ÊıÂë¹Ü×îÖÕÏÔÊ¾
-reg [5:0]led_data_addr;    //´æ´¢Ì°³ÔÉßµÄµØÖ·
-reg [63:0]led_disp_data;    //Ì°³ÔÉßµÄÊı¾İ´«¸øËû
-parameter LED_DATA_NUM = 48;    //×î´óÊıÁ¿
+//==============ç¬¬äºŒéƒ¨åˆ†ï¼Œå›¾å½¢æ¨¡å¼è´ªåƒè›‡======================
+reg [63:0] display_data;   //æ•°ç ç®¡æœ€ç»ˆæ˜¾ç¤º
+reg [5:0]led_data_addr;    //å­˜å‚¨è´ªåƒè›‡çš„åœ°å€
+reg [63:0]led_disp_data;    //è´ªåƒè›‡çš„æ•°æ®ä¼ ç»™ä»–
+parameter LED_DATA_NUM = 48;    //æœ€å¤§æ•°é‡
 
-//Êı×é´æÊı¾İ
+//æ•°ç»„å­˜æ•°æ®
 reg[63:0]LED_DATA[47:0];   
    initial begin
     LED_DATA[0]= 64'hFFFFFFFEFEFEFEFE;
@@ -127,7 +127,7 @@ reg[63:0]LED_DATA[47:0];
     LED_DATA[46]= 64'hFFFFBFBFBFBFBFFF;
     LED_DATA[47]= 64'hFFFFFFFFBFBFBFBD;
    end
- //Êä³öÌ°³ÔÉß
+ //è¾“å‡ºè´ªåƒè›‡
  always @(posedge Clk_CPU or negedge rstn) begin 
   if(!rstn) begin 
     led_data_addr <= 6'd0; 
@@ -144,24 +144,24 @@ reg[63:0]LED_DATA[47:0];
   end
   else led_data_addr <= led_data_addr; 
 end
-//============µÚ¶ş²¿·Ö====================================== 
+//============ç¬¬äºŒéƒ¨åˆ†====================================== 
 
-//ÒòÎªĞèÒªÊıÂë¹ÜÏÔÊ¾£¬ËùÒÔÕâÀïÌáÇ°¶¨ÒåÁË(^v^)
-    wire [31:0] instr;  //´ÓROMÖĞÈ¡µÄÖ¸Áî
-    reg[31:0] reg_data; //¼Ä´æÆ÷¶Á³öÀ´µÄÊı¾İ
-    reg[31:0] alu_disp_data; //aluµÄÏà¹ØÊäÈëÊı¾İ£¬±ÈÈçÊäÈë£¬Êä³ö
-    reg[31:0] dmem_data; //RAMÊı¾İ
+//å› ä¸ºéœ€è¦æ•°ç ç®¡æ˜¾ç¤ºï¼Œæ‰€ä»¥è¿™é‡Œæå‰å®šä¹‰äº†(^v^)
+    wire [31:0] instr;  //ä»ROMä¸­å–çš„æŒ‡ä»¤
+    reg[31:0] reg_data; //å¯„å­˜å™¨è¯»å‡ºæ¥çš„æ•°æ®
+    reg[31:0] alu_disp_data; //aluçš„ç›¸å…³è¾“å…¥æ•°æ®ï¼Œæ¯”å¦‚è¾“å…¥ï¼Œè¾“å‡º
+    reg[31:0] dmem_data; //RAMæ•°æ®
 
-//===============µÚÈı²¿·Ö£¬ÊıÂëÏÔÊ¾======================
-//Ñ¡ÔñĞÅºÅÔ´
+//===============ç¬¬ä¸‰éƒ¨åˆ†ï¼Œæ•°ç æ˜¾ç¤º======================
+//é€‰æ‹©ä¿¡å·æº
 always @(sw_i) begin
     if (sw_i[0] == 0) begin
     case(sw_i[14:11])
-        4'b1000: display_data = instr;  //ÏÔÊ¾Ö¸Áî(16½øÖÆ)
-        4'b0100: display_data = reg_data;   //ÏÔÊ¾¼Ä´æÆ÷Êı¾İ
-        4'b0010: display_data = alu_disp_data;  //ÏÔÊ¾aluÊı¾İ
-        4'b0001: display_data = dmem_data;  //ÏÔÊ¾dmÊı¾İ
-        default: display_data = instr;  //Ä¬ÈÏÏÔÊ¾Ö¸Áî(16½øÖÆ)
+        4'b1000: display_data = instr;  //æ˜¾ç¤ºæŒ‡ä»¤(16è¿›åˆ¶)
+        4'b0100: display_data = reg_data;   //æ˜¾ç¤ºå¯„å­˜å™¨æ•°æ®
+        4'b0010: display_data = alu_disp_data;  //æ˜¾ç¤ºaluæ•°æ®
+        4'b0001: display_data = dmem_data;  //æ˜¾ç¤ºdmæ•°æ®
+        default: display_data = instr;  //é»˜è®¤æ˜¾ç¤ºæŒ‡ä»¤(16è¿›åˆ¶)
     endcase
     end 
     else 
@@ -171,14 +171,14 @@ always @(sw_i) begin
     end
 //============================================
 
-//===============µÚËÄ²¿·Ö£¬È¡Ö¸Áî==================
-parameter IM_CODE_NUM = 17;//romµØÖ·×î´óÖµ
-reg [31:0] rom_addr;//¶ÁÈ¡romµÄµØÖ·
-//ROMÈ¡ÖµµÄÊµÀı»¯
+//===============ç¬¬å››éƒ¨åˆ†ï¼Œå–æŒ‡ä»¤==================
+parameter IM_CODE_NUM = 17;//romåœ°å€æœ€å¤§å€¼
+reg [31:0] rom_addr;//è¯»å–romçš„åœ°å€
+//ROMå–å€¼çš„å®ä¾‹åŒ–
 dist_mem_gen_0 IP_core_480(.a(rom_addr),.spo(instr));
  //================================================
 
-//=======µÚÎå²¿·Ö,Decode,¶Ô±äÁ¿¸³³õÖµ==================
+//=======ç¬¬äº”éƒ¨åˆ†,Decode,å¯¹å˜é‡èµ‹åˆå€¼==================
 wire [6:0]Op;  
 assign Op = instr[6:0]; //opcode
 wire [6:0]Funct7;
@@ -192,29 +192,29 @@ assign rs2= instr[24:20];  // rs2
 wire [4:0]rd;
 assign rd = instr[11:7];  // rd
 wire [11:0]iimm;      
-assign iimm = instr[31:20]; //iĞÍÖ¸ÁîµÄÁ¢¼´Êı½âÎö·½Ê½Éú³ÉµÄÁ¢¼´Êı
+assign iimm = instr[31:20]; //iå‹æŒ‡ä»¤çš„ç«‹å³æ•°è§£ææ–¹å¼ç”Ÿæˆçš„ç«‹å³æ•°
 wire [11:0]simm;
-assign simm = {instr[31:25],instr[11:7]};   //sĞÍÖ¸ÁîÁ¢¼´Êı½âÎö·½Ê½Éú³ÉµÄÁ¢¼´Êı
+assign simm = {instr[31:25],instr[11:7]};   //så‹æŒ‡ä»¤ç«‹å³æ•°è§£ææ–¹å¼ç”Ÿæˆçš„ç«‹å³æ•°
 wire [4:0] iimm_shamt;
-assign iimm_shamt = instr[24:20];   //iĞÎÖ¸ÁîÒÆÎ»Á¢¼´Êı
+assign iimm_shamt = instr[24:20];   //iå½¢æŒ‡ä»¤ç§»ä½ç«‹å³æ•°
 wire [19:0] jimm;
-assign jimm = {instr[31],instr[19:12],instr[20],instr[30:21]};  //UJĞÍÖ¸ÁîÁ¢¼´Êı
+assign jimm = {instr[31],instr[19:12],instr[20],instr[30:21]};  //UJå‹æŒ‡ä»¤ç«‹å³æ•°
 wire [11:0] bimm;
-assign bimm = {instr[31],instr[7],instr[30:25],instr[11:8]};    //SBĞÍÖ¸ÁîÁ¢¼´Êı
+assign bimm = {instr[31],instr[7],instr[30:25],instr[11:8]};    //SBå‹æŒ‡ä»¤ç«‹å³æ•°
 wire [19:0] uimm;
-assign uimm = instr[31:12]; //UĞÍÖ¸ÁîÁ¢¼´Êı 
+assign uimm = instr[31:12]; //Uå‹æŒ‡ä»¤ç«‹å³æ•° 
 //===============================================
 
-//========µÚÁù²¿·Ö£¬¿ØÖÆĞÅºÅÀı»¯=================== 
-    wire[7:0] Zero; //aluÊä³öµÄÁ½¸öÖµÖ®Ò»£¬ÓÃÓÚbranch
-    wire RegWrite;//ÓÃÓÚ¿ØÖÆĞ´ĞÅºÅ
-    wire MemWrite;//ÊÇ·ñĞ´ÈëMem
-    wire[5:0]EXTOp;//Á¢¼´ÊıÉú³ÉĞÅºÅ
+//========ç¬¬å…­éƒ¨åˆ†ï¼Œæ§åˆ¶ä¿¡å·ä¾‹åŒ–=================== 
+    wire[7:0] Zero; //aluè¾“å‡ºçš„ä¸¤ä¸ªå€¼ä¹‹ä¸€ï¼Œç”¨äºbranch
+    wire RegWrite;//ç”¨äºæ§åˆ¶å†™ä¿¡å·
+    wire MemWrite;//æ˜¯å¦å†™å…¥Mem
+    wire[5:0]EXTOp;//ç«‹å³æ•°ç”Ÿæˆä¿¡å·
     wire[4:0] ALUOp;//ALUOp
     wire ALUSrc;//ALUSrc
-    wire [2:0] DMType;//Mem¶ÁÈ¡/Ğ´Èë·½Ê½£º×Ö½Ú/°ë×Ö...
-    wire [1:0]WDSel;//¿ØÖÆĞÅºÅ,Ğ´»Ø¼Ä´æÆ÷
-    wire [2:0]NPCOp;//NPCOpÏÂÒ»ÌõROMadddress
+    wire [2:0] DMType;//Memè¯»å–/å†™å…¥æ–¹å¼ï¼šå­—èŠ‚/åŠå­—...
+    wire [1:0]WDSel;//æ§åˆ¶ä¿¡å·,å†™å›å¯„å­˜å™¨
+    wire [2:0]NPCOp;//NPCOpä¸‹ä¸€æ¡ROMadddress
  ctrl_480 U_CTRL_480(
     .Op(Op),
     .Funct3(Funct3),
@@ -231,8 +231,8 @@ assign uimm = instr[31:12]; //UĞÍÖ¸ÁîÁ¢¼´Êı
     );
  //========================================
  
-//================µÚÆß²¿·Ö£¬Á¢¼´ÊıÉú³É===============
-  wire [31:0]immout;//Á¢¼´ÊıÉú³ÉÊä³öµÄÁ¢¼´Êı
+//================ç¬¬ä¸ƒéƒ¨åˆ†ï¼Œç«‹å³æ•°ç”Ÿæˆ===============
+  wire [31:0]immout;//ç«‹å³æ•°ç”Ÿæˆè¾“å‡ºçš„ç«‹å³æ•°
 EXT_480 U_EXT_480(
     .iimm_shamt(iimm_shamt),
     .iimm(iimm),
@@ -245,13 +245,13 @@ EXT_480 U_EXT_480(
 ); 
 //==============================================
 
-//================µÚ°Ë²¿·Ö£¬RF===================
-    wire[31:0]RD1;//µÚÒ»¸ö¶Á¶Ë¿Ú¶Á³öÀ´µÄÊı¾İ
-    wire[31:0]RD2;//µÚ¶ş¸ö¶Á¶Ë¿Ú¶Á³öÀ´µÄÊı¾İ
-    wire[31:0] WD; //Ğ´Èë¼Ä´æÆ÷µÄÊı¾İ
-    reg [4:0] reg_addr; //¼Ä´æÆ÷µØÖ·
-    parameter MAXREGNUM = 15;//¼Ä´æÆ÷×î´óµØÖ·
-//RFµÄÀı»¯
+//================ç¬¬å…«éƒ¨åˆ†ï¼ŒRF===================
+    wire[31:0]RD1;//ç¬¬ä¸€ä¸ªè¯»ç«¯å£è¯»å‡ºæ¥çš„æ•°æ®
+    wire[31:0]RD2;//ç¬¬äºŒä¸ªè¯»ç«¯å£è¯»å‡ºæ¥çš„æ•°æ®
+    wire[31:0] WD; //å†™å…¥å¯„å­˜å™¨çš„æ•°æ®
+    reg [4:0] reg_addr; //å¯„å­˜å™¨åœ°å€
+    parameter MAXREGNUM = 15;//å¯„å­˜å™¨æœ€å¤§åœ°å€
+//RFçš„ä¾‹åŒ–
     RF_480 U_RF_480(
     .clk(Clk_CPU),
     .rstn(rstn),
@@ -264,7 +264,7 @@ EXT_480 U_EXT_480(
     .RD1(RD1),
     .RD2(RD2)
     );
- //reg_addrÔö¼Ó+¶Á³ö¶ÔÓ¦rfµÄÖµ
+ //reg_addrå¢åŠ +è¯»å‡ºå¯¹åº”rfçš„å€¼
  always@(posedge Clk_CPU or negedge rstn) 
       begin
          if(!rstn) 
@@ -281,12 +281,12 @@ EXT_480 U_EXT_480(
       end
  //============================================
  
-//==============µÚ¾Å²¿·ÖALU===================
-    wire signed [31:0]A;    //ALUµÚÒ»¸öÊäÈë
-    wire signed [31:0]B;    //ALUµÚ¶ş¸öÊäÈë
-    wire signed[31:0] aluout;   //ALUµÄÊä³ö
-    reg[2:0] alu_addr = 0; //ÓÃÓÚÑ¡ÔñÊä³öALUµÄ²»Í¬Á¿
-    //Ñ¡ÔñALUµÄÊäÈë£¬ÓÃmux¸ã¶¨RD2
+//==============ç¬¬ä¹éƒ¨åˆ†ALU===================
+    wire signed [31:0]A;    //ALUç¬¬ä¸€ä¸ªè¾“å…¥
+    wire signed [31:0]B;    //ALUç¬¬äºŒä¸ªè¾“å…¥
+    wire signed[31:0] aluout;   //ALUçš„è¾“å‡º
+    reg[2:0] alu_addr = 0; //ç”¨äºé€‰æ‹©è¾“å‡ºALUçš„ä¸åŒé‡
+    //é€‰æ‹©ALUçš„è¾“å…¥ï¼Œç”¨muxæå®šRD2
     assign A=RD1;
     alu_mux_480 U_alu_mux_480(
             .immout(immout),
@@ -294,7 +294,7 @@ EXT_480 U_EXT_480(
             .ALUSrc(ALUSrc),
             .B(B)
     );
- //aluÀı»¯
+ //aluä¾‹åŒ–
    alu_480 U_alu_480(
         .clk(clk), 
         .rstn(rstn), 
@@ -305,7 +305,7 @@ EXT_480 U_EXT_480(
         .C(aluout), 
         .Zero(Zero)
     );
- //Ñ­»·ÏÔÊ¾ALUµÄÄÚÈİ£¬Ñ¡ÔñALUµÄÊä³öÊı¾İ
+ //å¾ªç¯æ˜¾ç¤ºALUçš„å†…å®¹ï¼Œé€‰æ‹©ALUçš„è¾“å‡ºæ•°æ®
 always@(posedge Clk_CPU or negedge rstn)
 begin
     if(!rstn)alu_addr=3'b000;
@@ -327,23 +327,23 @@ begin
 end
 //===============================================
 
-//=============µÚÊ®²¿·Ödm=========================
-//=============Ö®Ç°Ğ´DMµÄÊ±ºò£¬²âÊÔDMÓÃ£¬ÕâÀï»á³åÍ»£¬×¢ÊÍÁË============================
-      //¶ÔÊäÈëDMµÄÀı»¯½øĞĞ¸³Öµ
+//=============ç¬¬åéƒ¨åˆ†dm=========================
+//=============ä¹‹å‰å†™DMçš„æ—¶å€™ï¼Œæµ‹è¯•DMç”¨ï¼Œè¿™é‡Œä¼šå†²çªï¼Œæ³¨é‡Šäº†============================
+      //å¯¹è¾“å…¥DMçš„ä¾‹åŒ–è¿›è¡Œèµ‹å€¼
 //      assign MemWrite= sw_i[2]&(~sw_i[1]);
 //      assign dm_addr = {{2{1'b0}},sw_i[10:8]};
 //      assign dm_din = {{5{1'b0}},sw_i[7:5]};
 //      assign DMType = {{1'b0},sw_i[4:3]};
 //==================================================
     wire [6:0]dm_addr;  
-    assign dm_addr=aluout;  //MemµÄµØÖ·£¬ÓÉALU¼ÆËãµÃ³ö
+    assign dm_addr=aluout;  //Memçš„åœ°å€ï¼Œç”±ALUè®¡ç®—å¾—å‡º
     wire [31:0]dm_din;
-    assign dm_din=RD2;  //ÊäÈëMemµÄÊı¾İ£¬storeÖ¸ÁîÊ±£¬ÓÃµÚ¶ş¸ö¶Á¶Ë¿Ú¶Á³öÀ´µÄÊı¾İ
+    assign dm_din=RD2;  //è¾“å…¥Memçš„æ•°æ®ï¼ŒstoreæŒ‡ä»¤æ—¶ï¼Œç”¨ç¬¬äºŒä¸ªè¯»ç«¯å£è¯»å‡ºæ¥çš„æ•°æ®
     wire [31:0]dm_dout; 
-    reg [7:0]dmem_addr=0;   //¶ÁdmemµÄÖµ
-    parameter DM_DATA_NUM=16;   //¶ÁdmemµÄ×î´óµØÖ·
+    reg [7:0]dmem_addr=0;   //è¯»dmemçš„å€¼
+    parameter DM_DATA_NUM=16;   //è¯»dmemçš„æœ€å¤§åœ°å€
        
-//dmÊµÀı»¯
+//dmå®ä¾‹åŒ–
       DM_480 U_DM_480(
             .clk(Clk_CPU),
             .rstn(rstn),
@@ -354,7 +354,7 @@ end
             .sw_i(sw_i),
             .dout(dm_dout)
       );
- //Ñ­»·ÏÔÊ¾dmÄÚÈİ£ºÖ»ÏÔÊ¾Ç°Ãæ16¸ö
+ //å¾ªç¯æ˜¾ç¤ºdmå†…å®¹ï¼šåªæ˜¾ç¤ºå‰é¢16ä¸ª
       always@(posedge Clk_CPU or posedge rstn)
       begin
       if(!rstn)begin dmem_addr=7'b0;dmem_data=U_DM_480.dmem[dmem_addr][7:0];end
@@ -368,7 +368,7 @@ end
             dmem_data = 32'hffffffff;end
             end
       end 
- //Ñ¡ÔñÊäÈërfµÄÖµ 
+ //é€‰æ‹©è¾“å…¥rfçš„å€¼ 
 rf_mux_480 U_RF_mux_480(
         .WDSel(WDSel),
         .dout(dm_dout),
@@ -378,12 +378,12 @@ rf_mux_480 U_RF_mux_480(
 );
 //=========================================
 
-//===========µÚÊ®Ò»²¿·Ö£¬ROMµØÖ·µÄ¸üĞÂ£¬Ğ´»ØPC======
+//===========ç¬¬åä¸€éƒ¨åˆ†ï¼ŒROMåœ°å€çš„æ›´æ–°ï¼Œå†™å›PC======
 always@(posedge Clk_CPU or negedge rstn)begin
-        if(!rstn) begin if(sw_i[1]==1'b0)rom_addr = 32'b0;end   //ÇåÁã
+        if(!rstn) begin if(sw_i[1]==1'b0)rom_addr = 32'b0;end   //æ¸…é›¶
         else 
         begin 
-            if(sw_i[1] == 1'b0) //Õı³£Ä£Ê½          
+            if(sw_i[1] == 1'b0) //æ­£å¸¸æ¨¡å¼          
                 begin
                 case(NPCOp)
                 `NPC_PLUS4: rom_addr = (rom_addr +1'b1)%(IM_CODE_NUM);                            
@@ -398,15 +398,15 @@ always@(posedge Clk_CPU or negedge rstn)begin
                             default:rom_addr = (rom_addr +1'b1)%(IM_CODE_NUM);
                             endcase
                             end
-                `NPC_JUMP:rom_addr = (rom_addr+immout)%(IM_CODE_NUM); 
-                `NPC_JALR: rom_addr = (U_RF_480.rf[rs1]+immout)%(IM_CODE_NUM);
+                `NPC_JUMP:rom_addr = (rom_addr+(immout>>>2))%(IM_CODE_NUM); 
+                `NPC_JALR: rom_addr = (U_RF_480.rf[rs1]+(immout>>>2))%(IM_CODE_NUM);
                 endcase
                end
-            else if(sw_i[1]==1'b1)rom_addr = rom_addr;  //µ÷ÊÔÄ£Ê½
+            else if(sw_i[1]==1'b1)rom_addr = rom_addr;  //è°ƒè¯•æ¨¡å¼
         end
     end
 //===================================================
-//===========µÚÊ®¶ş²¿·Ö,ÊıÂë¹ÜµÄÊµÀı»¯===========
+//===========ç¬¬åäºŒéƒ¨åˆ†,æ•°ç ç®¡çš„å®ä¾‹åŒ–===========
    seg7x16_480 u_seg7x16_480(
     .clk(clk),       
     .rstn(rstn),     
