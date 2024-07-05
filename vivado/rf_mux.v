@@ -20,7 +20,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-//定义从Mem2Reg的Mux写入的信号
+//露篓脪氓麓脫Mem2Reg碌脛Mux脨麓脠毛碌脛脨脜潞脜
 `define WDSel_FromALU 2'b00
 `define WDSel_FromMEM 2'b01
 `define WDSel_FromPC 2'b10
@@ -36,7 +36,7 @@ always @(*)begin
 	case(WDSel)
 		`WDSel_FromALU: WD<=aluout;
 		`WDSel_FromMEM: WD<=dout;
-		`WDSel_FromPC:  WD<=PC_out+4;
+		`WDSel_FromPC:  WD<=PC_out+1;
 	endcase
 end
 endmodule
